@@ -143,10 +143,16 @@ void Flanger1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     float* channelOutDataL = buffer.getWritePointer(0);
     float* channelOutDataR = buffer.getWritePointer(1);
     const float* channelInData = buffer.getReadPointer(0);
+    float currentDelay;
     for (int i = 0; i < numSamples; ++i)
     {
         //evaluate current distance between pointers (in seconds)
-        float currentDelay = 0.001 * width * (0.5 + 0.5 * sinf(phase));
+        if (LFO_waveform_sinusoid) {
+            currentDelay = 0.001 * width * (0.5 + 0.5 * sinf(phase));//sinusoidal osc
+        }
+        else {
+            currentDelay = 0.001 * width * (fabsf(phase)/M_PI);//ramp osc
+        }
         //get fractional read pointer
         float dpr = fmodf((float)dw - (float)(currentDelay * getSampleRate()) + (float)M - 3.0, (float)M);
         //decompose read pointer in integer part and fractional part, get previous and next integer pointers
@@ -163,9 +169,9 @@ void Flanger1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
         //increment pointers
         dw = (dw + 1) % M;
         dr = (dr + 1) % M;
-        //LOW FREQUENCY OSCILLATOR
+        //LFO phase
         phase += freqLFO * 2 * M_PI / getSampleRate();
-        if (phase >= 2 * M_PI) { phase -= 2 * M_PI; }
+        if (phase >= M_PI) { phase -= 2 * M_PI; }      
     }
 }
 

@@ -55,11 +55,14 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    void toggle_waveform();
+
     float wet = 0;
     float feedback = 0;
     float freqLFO = 1;
     float width = 0;
     float phase = 0;
+    bool LFO_waveform_sinusoid = true;
 
 private:
     AudioSampleBuffer dbuf;

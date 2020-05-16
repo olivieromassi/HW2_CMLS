@@ -16,7 +16,7 @@
 //==============================================================================
 /**
 */
-class Flanger1AudioProcessorEditor  : public AudioProcessorEditor, private Slider::Listener
+class Flanger1AudioProcessorEditor  : public AudioProcessorEditor, private Slider::Listener, private Button::Listener
 {
 public:
     Flanger1AudioProcessorEditor (Flanger1AudioProcessor&);
@@ -26,11 +26,13 @@ public:
     void paint (Graphics&) override;
     void resized() override;
     void sliderValueChanged(Slider* slider) override;
+    void buttonClicked(Button* button) override;
 
     Slider freqLFO_slider;
     Slider wet_slider;
     Slider feedback_slider;
     Slider width_slider;
+    TextButton waveform_button;
 
 private:
     

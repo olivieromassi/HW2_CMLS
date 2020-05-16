@@ -55,6 +55,10 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     width_slider.setValue(0);
     addAndMakeVisible(&width_slider);
 
+    waveform_button.setButtonText("LFO waveform");
+    waveform_button.setVisible(true);
+    addAndMakeVisible(&waveform_button);
+
     freqLFO_slider.addListener(this);
     wet_slider.addListener(this);
     feedback_slider.addListener(this);
@@ -82,6 +86,7 @@ void Flanger1AudioProcessorEditor::resized()
     wet_slider.setBounds(80, 30, 20, getHeight() - 60);
     feedback_slider.setBounds(120, 30, 20, getHeight() - 60);
     width_slider.setBounds(160, 30, 20, getHeight() - 60);
+    waveform_button.setBounds(200, 30, 60, 30);
 }
 
 void Flanger1AudioProcessorEditor::sliderValueChanged(Slider* slider) {
@@ -89,4 +94,8 @@ void Flanger1AudioProcessorEditor::sliderValueChanged(Slider* slider) {
     processor.wet = wet_slider.getValue();
     processor.feedback = feedback_slider.getValue();
     processor.width = width_slider.getValue();
+}
+
+void Flanger1AudioProcessorEditor::buttonClicked(Button* button) {
+    processor.LFO_waveform_sinusoid = !processor.LFO_waveform_sinusoid;
 }
