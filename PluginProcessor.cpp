@@ -10,9 +10,9 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#ifndef M_PI
-#define M_PI  (3.14159265) 
-#endif
+
+#define _USE_MATH_DEFINES
+#include<math.h>
 
 //==============================================================================
 Flanger1AudioProcessor::Flanger1AudioProcessor()
@@ -24,7 +24,7 @@ Flanger1AudioProcessor::Flanger1AudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), parameters(*this, nullptr, "Parameters", createParameters())
 #endif
 {
 }
@@ -98,13 +98,17 @@ void Flanger1AudioProcessor::changeProgramName (int index, const String& newName
 //==============================================================================
 void Flanger1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    dbuf.setSize(getTotalNumOutputChannels(), 100000);
-    dbuf.clear();
-    dw = 0;
-    dr = 1;
-    M = 3000;
+    const int numInputChannels = getTotalNumInputChannels();
+    delayBufferSize = (int)sampleRate;
+
+    delayBuffer.setSize(numInputChannels, delayBufferSize);
+    delayBuffer.clear();
+
+    // Initializing member variables
+    delayWritePosition = 0;
+    lfoPhase = 0.0f;
+    inverseSampleRate = 1.0f / (float)sampleRate;
+    twoPi = (float)(2.0f * M_PI);
 }
 
 void Flanger1AudioProcessor::releaseResources()
@@ -137,42 +141,81 @@ bool Flanger1AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
-void Flanger1AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void Flanger1AudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-    int numSamples = buffer.getNumSamples();
-    float* channelOutDataL = buffer.getWritePointer(0);
-    float* channelOutDataR = buffer.getWritePointer(1);
-    const float* channelInData = buffer.getReadPointer(0);
-    float currentDelay;
-    for (int i = 0; i < numSamples; ++i)
+    const int numInputChannels = getTotalNumInputChannels();
+    const int numOutputChannels = getTotalNumOutputChannels();
+    const int numSamples = buffer.getNumSamples();
+
+    for (auto i = numInputChannels; i < numOutputChannels; ++i)
+        buffer.clear(i, 0, buffer.getNumSamples());
+
+    // Getting the values of the parameters that can be set through the UI
+    auto width = parameters.getRawParameterValue("Width");
+    auto freqLFO = parameters.getRawParameterValue("FreqLFO");
+    auto wet = parameters.getRawParameterValue("Wet");
+    auto feedback = parameters.getRawParameterValue("Feedback");
+    auto waveform = parameters.getRawParameterValue("Waveform");
+
+    // Initializing local variables
+    int localWritePosition = 0;
+    float phase = 0.0f;
+    float phaseMain = 0.0f;
+
+    for (int channel = 0; channel < numInputChannels; ++channel)
     {
-        //evaluate current distance between pointers (in seconds)
-        if (LFO_waveform_sinusoid) {
-            currentDelay = 0.001 * width * (0.5 + 0.5 * sinf(phase));//sinusoidal osc
+        float* channelData = buffer.getWritePointer(channel);
+        float* delayData = delayBuffer.getWritePointer(channel);
+        localWritePosition = delayWritePosition;
+        phase = lfoPhase;
+
+        // Putting the phase of the right channel in quadrature with the left channel
+        if (channel != 0)
+            phase = fmodf(phase + 0.25f, 1.0f);
+
+        for (int i = 0; i < numSamples; ++i)
+        {
+            const float in = channelData[i];
+            float interpolatedSample = 0.0f;
+            // Evaluate current distance between pointers (in seconds)
+            float localDelayTime = (*width * 0.001f) * lfo(phase, (int)(*waveform));
+
+            // Get the read pointer from the write pointer considering the actual delay
+            float dpr = fmodf((float)localWritePosition
+                - (float)(localDelayTime * getSampleRate())
+                + (float)delayBufferSize - 3.0f,
+                (float)delayBufferSize);
+
+            // Extract the previous and the next sample from the integer and fractional part of the index
+            int previousSample = (int)floorf(dpr);
+            float fraction = dpr - (float)previousSample;
+            int nextSample = (previousSample + 1) % delayBufferSize;
+
+            // Get the interpolated value of the sample using Linear Interpolation
+            interpolatedSample = fraction * delayData[nextSample] + (1.0f - fraction) * delayData[previousSample];
+
+            // Computing the value of the output
+            channelData[i] = in + (interpolatedSample * (*wet));
+
+            // Computing the value of the sample to be used in feedback
+            delayData[localWritePosition] = in + (interpolatedSample * (*feedback));
+
+            // Increasing the pointer at constant rate
+            if (++localWritePosition >= delayBufferSize)
+                localWritePosition = 0;
+
+            // Updating the phase of the Oscillator, keeping it between 0-1
+            phase += (*freqLFO) * inverseSampleRate;
+            if (phase >= 1.0f)
+                phase -= 1.0f;
         }
-        else {
-            currentDelay = 0.001 * width * (fabsf(phase)/M_PI);//ramp osc
-        }
-        //get fractional read pointer
-        float dpr = fmodf((float)dw - (float)(currentDelay * getSampleRate()) + (float)M - 3.0, (float)M);
-        //decompose read pointer in integer part and fractional part, get previous and next integer pointers
-        float fraction = dpr - floorf(dpr);
-        int previousSample = (int)floorf(dpr);
-        int nextSample = (previousSample + 1) % M;
-        //interpolate between previous Sample and next sample using the fraction
-        float interpolatedSample = fraction * dbuf.getSample(0, nextSample) + (1.0f - fraction) * dbuf.getSample(0, previousSample);
-        //feedback
-        dbuf.setSample(0, dw, channelInData[i] + feedback * interpolatedSample);
-        //output
-        channelOutDataL[i] = interpolatedSample * wet + channelInData[i] * (1 - wet);
-        channelOutDataR[i] = interpolatedSample * wet + channelInData[i] * (1 - wet);
-        //increment pointers
-        dw = (dw + 1) % M;
-        dr = (dr + 1) % M;
-        //LFO phase
-        phase += freqLFO * 2 * M_PI / getSampleRate();
-        if (phase >= M_PI) { phase -= 2 * M_PI; }      
+        if (channel == 0)
+            phaseMain = phase;
     }
+    // Restoring the values of the index and the phase for a new block
+    delayWritePosition = localWritePosition;
+    lfoPhase = phaseMain;
+
 }
 
 //==============================================================================
@@ -189,15 +232,63 @@ AudioProcessorEditor* Flanger1AudioProcessor::createEditor()
 //==============================================================================
 void Flanger1AudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto state = parameters.copyState();
+    std::unique_ptr<XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void Flanger1AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName(parameters.state.getType()))
+            parameters.replaceState(ValueTree::fromXml(*xmlState));
+}
+
+float Flanger1AudioProcessor::lfo(float phase, int waveform)
+{
+    float out = 0.0f;
+
+    switch (waveform) {
+        // Sinusoidal Oscillator
+        case 0: {
+            out = 0.5f + 0.5f * sinf(twoPi * phase);
+            break;
+        }
+        // Triangular Oscillator
+        case 1: {
+            if (phase < 0.25f)
+                out = 0.5f + 2.0f * phase;
+            else if (phase < 0.75f)
+                out = 1.0f - 2.0f * (phase - 0.25f);
+            else
+                out = 2.0f * (phase - 0.75f);
+            break;
+        }
+        // Sawtooth Oscillator
+        case 2: {
+            if (phase < 0.5f)
+                out = 0.5f + phase;
+            else
+                out = phase - 0.5f;
+            break;
+        }
+    }
+    return out;
+}
+
+AudioProcessorValueTreeState::ParameterLayout Flanger1AudioProcessor::createParameters()
+{
+    std::vector<std::unique_ptr<RangedAudioParameter>> params;
+
+    params.push_back(std::make_unique<AudioParameterFloat>("Wet", "wet", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<AudioParameterFloat>("Feedback", "feedback", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<AudioParameterFloat>("FreqLFO", "freqLFO", 0.1f, 10.0f, 0.0f));
+    params.push_back(std::make_unique<AudioParameterFloat>("Width", "width", 1.0f, 20.0f, 0.0f));
+    params.push_back(std::make_unique<AudioParameterInt>("Waveform", "waveform", 0, 2, 0));
+
+    return { params.begin(), params.end() };
 }
 
 //==============================================================================

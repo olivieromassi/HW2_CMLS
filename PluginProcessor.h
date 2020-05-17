@@ -55,20 +55,19 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    void toggle_waveform();
+    float lfo(float phase, int waveform);
 
-    float wet = 0;
-    float feedback = 0;
-    float freqLFO = 1;
-    float width = 0;
-    float phase = 0;
-    bool LFO_waveform_sinusoid = true;
+    AudioProcessorValueTreeState parameters;
+    AudioProcessorValueTreeState::ParameterLayout createParameters();
 
 private:
-    AudioSampleBuffer dbuf;
-    int dw;
-    int dr;
-    int M;
+    AudioSampleBuffer delayBuffer;
+    int delayWritePosition;
+    int delayBufferSize;
+
+    float lfoPhase;
+    float inverseSampleRate;
+    float twoPi;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Flanger1AudioProcessor)
 };

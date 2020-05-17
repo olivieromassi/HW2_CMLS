@@ -17,10 +17,10 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (500, 500);
+    setSize (600, 600);
     
     freqLFO_slider.setSliderStyle(Slider::LinearBarVertical);
-    freqLFO_slider.setRange(1.0, 10.0);
+    freqLFO_slider.setRange(0.1, 10.0);
     freqLFO_slider.setVisible(true);
     freqLFO_slider.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
     freqLFO_slider.setPopupDisplayEnabled (true, false, this);
@@ -28,14 +28,18 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     freqLFO_slider.setValue(0);
     addAndMakeVisible (&freqLFO_slider);
 
+    freqLFOVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "FreqLFO", freqLFO_slider);
+
     wet_slider.setSliderStyle(Slider::LinearBarVertical);
     wet_slider.setRange(0.0, 1.0);
     wet_slider.setVisible(true);
     wet_slider.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
     wet_slider.setPopupDisplayEnabled(true, false, this);
-    wet_slider.setTextValueSuffix(" Ratio");
+    wet_slider.setTextValueSuffix("Wet");
     wet_slider.setValue(0);
     addAndMakeVisible(&wet_slider);
+
+    wetVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "Wet", wet_slider);
 
     feedback_slider.setSliderStyle(Slider::LinearBarVertical);
     feedback_slider.setRange(0.0, 1.0);
@@ -46,8 +50,10 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     feedback_slider.setValue(0);
     addAndMakeVisible(&feedback_slider);
 
+    feedbackVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "Feedback", feedback_slider);
+
     width_slider.setSliderStyle(Slider::LinearBarVertical);
-    width_slider.setRange(0.0, 5.0);
+    width_slider.setRange(1.0,20.0);
     width_slider.setVisible(true);
     width_slider.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
     width_slider.setPopupDisplayEnabled(true, false, this);
@@ -55,14 +61,19 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     width_slider.setValue(0);
     addAndMakeVisible(&width_slider);
 
-    waveform_button.setButtonText("LFO waveform");
-    waveform_button.setVisible(true);
-    addAndMakeVisible(&waveform_button);
+    widthVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "Width", width_slider);
 
-    freqLFO_slider.addListener(this);
-    wet_slider.addListener(this);
-    feedback_slider.addListener(this);
-    width_slider.addListener(this);
+    waveform_slider.setSliderStyle(Slider::LinearBarVertical);
+    waveform_slider.setRange(0, 2);
+    waveform_slider.setVisible(true);
+    waveform_slider.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
+    waveform_slider.setPopupDisplayEnabled(true, false, this);
+    waveform_slider.setTextValueSuffix(" Waveform");
+    waveform_slider.setValue(0);
+    addAndMakeVisible(&waveform_slider);
+
+    waveformVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "Waveform", waveform_slider);
+
 
 }
 
@@ -86,16 +97,5 @@ void Flanger1AudioProcessorEditor::resized()
     wet_slider.setBounds(80, 30, 20, getHeight() - 60);
     feedback_slider.setBounds(120, 30, 20, getHeight() - 60);
     width_slider.setBounds(160, 30, 20, getHeight() - 60);
-    waveform_button.setBounds(200, 30, 60, 30);
-}
-
-void Flanger1AudioProcessorEditor::sliderValueChanged(Slider* slider) {
-    processor.freqLFO = freqLFO_slider.getValue();
-    processor.wet = wet_slider.getValue();
-    processor.feedback = feedback_slider.getValue();
-    processor.width = width_slider.getValue();
-}
-
-void Flanger1AudioProcessorEditor::buttonClicked(Button* button) {
-    processor.LFO_waveform_sinusoid = !processor.LFO_waveform_sinusoid;
+    waveform_slider.setBounds(200, 30, 20, getHeight() - 60);
 }

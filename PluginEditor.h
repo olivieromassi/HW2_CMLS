@@ -16,7 +16,7 @@
 //==============================================================================
 /**
 */
-class Flanger1AudioProcessorEditor  : public AudioProcessorEditor, private Slider::Listener, private Button::Listener
+class Flanger1AudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
     Flanger1AudioProcessorEditor (Flanger1AudioProcessor&);
@@ -25,20 +25,25 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-    void sliderValueChanged(Slider* slider) override;
-    void buttonClicked(Button* button) override;
 
     Slider freqLFO_slider;
     Slider wet_slider;
     Slider feedback_slider;
     Slider width_slider;
-    TextButton waveform_button;
+    Slider waveform_slider;
 
 private:
     
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     Flanger1AudioProcessor& processor;
+
+public:
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> widthVal;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> wetVal;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> freqLFOVal;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> feedbackVal;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> waveformVal;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Flanger1AudioProcessorEditor)
 };
