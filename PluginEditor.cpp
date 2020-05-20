@@ -19,8 +19,10 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     // editor's size to whatever you need it to be.
     setSize (600, 250);
 
+    // Choosing the font to be used into the labels
     labelFont = new Font("Broadway", 20.0f, 1);
     
+    // Setting the properties of the LFO rate slider
     freqLFO_slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
     freqLFO_slider.setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::crimson);
     freqLFO_slider.setSize(100, 100);
@@ -32,13 +34,16 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     freqLFO_slider.setValue(0);
     addAndMakeVisible (&freqLFO_slider);
 
+    // Setting the properties of the LFO rate label
     freqLFO_label.setFont(*labelFont);
     freqLFO_label.setText("LFO Rate", dontSendNotification);
     freqLFO_label.setSize(80, 20);
     addAndMakeVisible(&freqLFO_label);
 
+    // Assigning the Slider to the processor parameter
     freqLFOVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "FreqLFO", freqLFO_slider);
 
+    // Setting the properties of the Depth/Wet slider
     wet_slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
     wet_slider.setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::crimson);
     wet_slider.setSize(100, 100);
@@ -49,13 +54,16 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     wet_slider.setValue(0);
     addAndMakeVisible(&wet_slider);
 
+    // Setting the properties of the Depth/Wet label
     wet_label.setFont(*labelFont);
     wet_label.setText("Depth", dontSendNotification);
     wet_label.setSize(80, 20);
     addAndMakeVisible(&wet_label);
 
+    // Assigning the Slider to the processor parameter
     wetVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "Wet", wet_slider);
 
+    // Setting the properties of the Feedback slider
     feedback_slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
     feedback_slider.setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::crimson);
     feedback_slider.setSize(100, 100);
@@ -66,13 +74,16 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     feedback_slider.setValue(0);
     addAndMakeVisible(&feedback_slider);
 
+    // Setting the properties of the Feedback slider
     feedback_label.setFont(*labelFont);
     feedback_label.setText("Feedback", dontSendNotification);
     feedback_label.setSize(100, 20);
     addAndMakeVisible(&feedback_label);
 
+    // Assigning the Slider to the processor parameter
     feedbackVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "Feedback", feedback_slider);
 
+    // Setting the properties of the Width slider
     width_slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
     width_slider.setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::crimson);
     width_slider.setSize(100, 100);    
@@ -84,13 +95,16 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     width_slider.setValue(0);
     addAndMakeVisible(&width_slider);
 
+    // Setting the properties of the Width label
     width_label.setFont(*labelFont);
     width_label.setText("Width", dontSendNotification);
     width_label.setSize(80, 20);
     addAndMakeVisible(&width_label);
 
+    // Assigning the Slider to the processor parameter
     widthVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "Width", width_slider);
 
+    // Setting the properties of the Waveform slider
     waveform_slider.setSliderStyle(Slider::LinearVertical);
     waveform_slider.setSize(100, 100);
     waveform_slider.setRange(0, 2);
@@ -100,20 +114,37 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     waveform_slider.setValue(0);
     addAndMakeVisible(&waveform_slider);
 
+    // Setting the properties of the Waveform label
     waveform_label.setFont(*labelFont);
     waveform_label.setText("Waveform", dontSendNotification);
     waveform_label.setSize(100, 20);
     addAndMakeVisible(&waveform_label);
 
+    // Assigning the Slider to the processor parameter
     waveformVal = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.parameters, "Waveform", waveform_slider);
 
+    // Choosing the font to be used in the Title label
     pluginNameFont = new Font("Broadway", 40.0f, 1);
 
+    // Setting the properties of the Plugin Title
     pluginName_label.setText("FlangerONE", dontSendNotification);
     pluginName_label.setSize(500, 40);
     pluginName_label.setColour(Label::ColourIds::textColourId, Colours::black);
     pluginName_label.setFont(*pluginNameFont);
     addAndMakeVisible(&pluginName_label);
+
+    // Setting the properties of the Stereo button
+    stereo_button.setSize(20, 20);
+    addAndMakeVisible(&stereo_button);
+
+    // Setting the properties of the Stereo label
+    stereo_label.setFont(*labelFont);
+    stereo_label.setText("Stereo", dontSendNotification);
+    stereo_label.setSize(80, 20);
+    addAndMakeVisible(&stereo_label);
+
+    // Assigning the Button to the processor parameter
+    stereoVal = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.parameters, "Stereo", stereo_button);
 
 }
 
@@ -171,4 +202,8 @@ void Flanger1AudioProcessorEditor::resized()
     // Placing the Waveform Slider and its corresponding Label
     waveform_slider.setBounds(4 * section + 3, getHeight() - 140, getWidth() + 100, getHeight() - 60);
     waveform_label.setBounds(4 * section + 6, getHeight() - 160, 80, 20);
+
+    // Placing the Stereo Button and its corresponding Label
+    stereo_button.setBounds(520, 30, 20, 20);
+    stereo_label.setBounds(450, 30, 20, 20);
 }

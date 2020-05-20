@@ -32,13 +32,17 @@ public:
     Slider width_slider;
     Slider waveform_slider;
 
+    ToggleButton stereo_button;
+
     Label freqLFO_label;
     Label wet_label;
     Label feedback_label;
     Label width_label;
     Label waveform_label;
+    Label stereo_label;
 
     Label pluginName_label;
+
     Font* pluginNameFont;
     Font* labelFont;
 
@@ -54,6 +58,7 @@ public:
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> freqLFOVal;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> feedbackVal;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> waveformVal;
+    std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> stereoVal;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Flanger1AudioProcessorEditor)
 };

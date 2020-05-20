@@ -153,6 +153,7 @@ void Flanger1AudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer
     auto wet = parameters.getRawParameterValue("Wet");
     auto feedback = parameters.getRawParameterValue("Feedback");
     auto waveform = parameters.getRawParameterValue("Waveform");
+    auto stereo = parameters.getRawParameterValue("Stereo");
 
     // Initializing local variables
     int localWritePosition = 0;
@@ -167,7 +168,7 @@ void Flanger1AudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer
         phase = lfoPhase;
 
         // Putting the phase of the right channel in quadrature with the left channel
-        if (channel != 0)
+        if ((bool)*stereo && channel != 0)
             phase = fmodf(phase + 0.25f, 1.0f);
 
         for (int i = 0; i < numSamples; ++i)
@@ -287,6 +288,7 @@ AudioProcessorValueTreeState::ParameterLayout Flanger1AudioProcessor::createPara
     params.push_back(std::make_unique<AudioParameterFloat>("FreqLFO", "freqLFO", 0.1f, 10.0f, 0.0f));
     params.push_back(std::make_unique<AudioParameterFloat>("Width", "width", 1.0f, 20.0f, 0.0f));
     params.push_back(std::make_unique<AudioParameterInt>("Waveform", "waveform", 0, 2, 0));
+    params.push_back(std::make_unique<AudioParameterBool>("Stereo", "stereo", 0));
 
     return { params.begin(), params.end() };
 }
