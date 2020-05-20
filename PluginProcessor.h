@@ -64,6 +64,7 @@ private:
     AudioSampleBuffer delayBuffer;
     int delayWritePosition;
     int delayBufferSize;
+    int delayBufferChannels;
 
     float lfoPhase;
     float inverseSampleRate;

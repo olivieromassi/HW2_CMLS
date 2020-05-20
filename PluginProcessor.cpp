@@ -98,10 +98,10 @@ void Flanger1AudioProcessor::changeProgramName (int index, const String& newName
 //==============================================================================
 void Flanger1AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    const int numInputChannels = getTotalNumInputChannels();
-    delayBufferSize = (int)sampleRate;
+    delayBufferChannels = getTotalNumInputChannels();
+    delayBufferSize = (int)(0.020f * (float)sampleRate) + 1;
 
-    delayBuffer.setSize(numInputChannels, delayBufferSize);
+    delayBuffer.setSize(delayBufferChannels, delayBufferSize);
     delayBuffer.clear();
 
     // Initializing member variables
@@ -146,9 +146,6 @@ void Flanger1AudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer
     const int numInputChannels = getTotalNumInputChannels();
     const int numOutputChannels = getTotalNumOutputChannels();
     const int numSamples = buffer.getNumSamples();
-
-    for (auto i = numInputChannels; i < numOutputChannels; ++i)
-        buffer.clear(i, 0, buffer.getNumSamples());
 
     // Getting the values of the parameters that can be set through the UI
     auto width = parameters.getRawParameterValue("Width");
@@ -215,6 +212,9 @@ void Flanger1AudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer
     // Restoring the values of the index and the phase for a new block
     delayWritePosition = localWritePosition;
     lfoPhase = phaseMain;
+
+    for (auto i = numInputChannels; i < numOutputChannels; ++i)
+        buffer.clear(i, 0, buffer.getNumSamples());
 
 }
 

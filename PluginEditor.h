@@ -32,6 +32,16 @@ public:
     Slider width_slider;
     Slider waveform_slider;
 
+    Label freqLFO_label;
+    Label wet_label;
+    Label feedback_label;
+    Label width_label;
+    Label waveform_label;
+
+    Label pluginName_label;
+    Font* pluginNameFont;
+    Font* labelFont;
+
 private:
     
     // This reference is provided as a quick way for your editor to
