@@ -67,7 +67,7 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     feedback_slider.setSliderStyle(Slider::Rotary);
     feedback_slider.setLookAndFeel(&otherLookAndFeel);
     feedback_slider.setSize(100, 100);
-    feedback_slider.setRange(0.0, 1.0, 0.01);
+    feedback_slider.setRange(0.0, 0.99, 0.01);
     feedback_slider.setVisible(true);
     feedback_slider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 20);
     feedback_slider.setPopupDisplayEnabled(true, false, this);

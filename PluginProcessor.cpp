@@ -284,7 +284,7 @@ AudioProcessorValueTreeState::ParameterLayout Flanger1AudioProcessor::createPara
     std::vector<std::unique_ptr<RangedAudioParameter>> params;
 
     params.push_back(std::make_unique<AudioParameterFloat>("Wet", "wet", 0.0f, 1.0f, 0.0f));
-    params.push_back(std::make_unique<AudioParameterFloat>("Feedback", "feedback", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<AudioParameterFloat>("Feedback", "feedback", 0.0f, 0.99f, 0.0f));
     params.push_back(std::make_unique<AudioParameterFloat>("FreqLFO", "freqLFO", 0.1f, 10.0f, 0.0f));
     params.push_back(std::make_unique<AudioParameterFloat>("Width", "width", 1.0f, 20.0f, 0.0f));
     params.push_back(std::make_unique<AudioParameterInt>("Waveform", "waveform", 0, 2, 0));
