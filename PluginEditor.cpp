@@ -25,7 +25,6 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     // Setting the properties of the LFO rate slider
     freqLFO_slider.setSliderStyle(Slider::Rotary);
     freqLFO_slider.setLookAndFeel(&otherLookAndFeel);
-    freqLFO_slider.setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::crimson);
     freqLFO_slider.setSize(100, 100);
     freqLFO_slider.setRange(0.1, 10.0, 0.1);
     freqLFO_slider.setVisible(true);
@@ -47,7 +46,6 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     // Setting the properties of the Depth/Wet slider
     wet_slider.setSliderStyle(Slider::Rotary);
     wet_slider.setLookAndFeel(&otherLookAndFeel);
-    wet_slider.setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::crimson);
     wet_slider.setSize(100, 100);
     wet_slider.setRange(0.0, 1.0, 0.01);
     wet_slider.setVisible(true);
@@ -68,7 +66,6 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     // Setting the properties of the Feedback slider
     feedback_slider.setSliderStyle(Slider::Rotary);
     feedback_slider.setLookAndFeel(&otherLookAndFeel);
-    feedback_slider.setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::crimson);
     feedback_slider.setSize(100, 100);
     feedback_slider.setRange(0.0, 1.0, 0.01);
     feedback_slider.setVisible(true);
@@ -89,7 +86,6 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
     // Setting the properties of the Width slider
     width_slider.setSliderStyle(Slider::Rotary);
     width_slider.setLookAndFeel(&otherLookAndFeel);
-    width_slider.setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::crimson);
     width_slider.setSize(100, 100);    
     width_slider.setRange(1.0, 20.0);
     width_slider.setVisible(true);
@@ -127,15 +123,21 @@ Flanger1AudioProcessorEditor::Flanger1AudioProcessorEditor (Flanger1AudioProcess
 
     waveformFont = new Font("Broadway", 12.0f, 1);
     
+    // Setting the properties of the Sinusoidal waveform label
     sine_label.setText("Sine", dontSendNotification);
     sine_label.setFont(*waveformFont);
     sine_label.setColour(Label::ColourIds::textColourId, Colours::black);
+
+    // Setting the properties of the Triangular waveform label
     triang_label.setText("Triangular", dontSendNotification);
     triang_label.setFont(*waveformFont);
     triang_label.setColour(Label::ColourIds::textColourId, Colours::black);
+
+    // Setting the properties of the Sawtooth waveform label
     saw_label.setText("SawTooth", dontSendNotification);
     saw_label.setFont(*waveformFont);
     saw_label.setColour(Label::ColourIds::textColourId, Colours::black);
+
     addAndMakeVisible(&sine_label);
     addAndMakeVisible(&triang_label);
     addAndMakeVisible(&saw_label);

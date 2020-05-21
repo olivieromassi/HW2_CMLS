@@ -65,6 +65,8 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
+    OtherLookAndFeel otherLookAndFeel;
+
     Slider freqLFO_slider;
     Slider wet_slider;
     Slider feedback_slider;
@@ -96,7 +98,6 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     Flanger1AudioProcessor& processor;
-    OtherLookAndFeel otherLookAndFeel;
 
 public:
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> widthVal;
